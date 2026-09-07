@@ -61,7 +61,7 @@ export function SiteFooter() {
               scalenexdigital@gmail.com
             </a>
             <a href="tel:+916398520345">+91 6398520345</a>
-            <a href="https://wa.me/916398520345">Chat on WhatsApp ↗</a>
+            <Link href="/contact">Send an enquiry ↗</Link>
             <span className="availability">
               <i /> Open to new conversations
             </span>

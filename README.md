@@ -68,7 +68,7 @@ npm.cmd run seed
 
 This creates collection indexes and the initial admin, hashes the password, and adds the standard commission tiers. Re-running it does not change an existing admin's password or create duplicate users. An email that already belongs to an influencer is rejected. The temporary password must have at least 12 characters and at most 72 UTF-8 bytes. The script never prints it.
 
-Open `/login`, sign in with the initial credentials, and change the temporary password. Password changes revoke existing sessions; sign in again. Use `/admin/influencers/new` to create partner accounts. Share temporary credentials through a private channel. There is no public registration route.
+Open `/login`, sign in with the initial credentials, and change the temporary password. Password changes revoke existing sessions; sign in again. Use `/admin/influencers/new` to create partner accounts. Share temporary credentials through a private channel. Influencers can also register at /register. These accounts start PENDING; activate them from the admin Influencers screen after review.
 
 ## Deploy to Vercel
 
@@ -124,12 +124,19 @@ npm.cmd run test:e2e
 npm.cmd run build
 ```
 
-Integration and browser tests create isolated local MongoDB replica sets. The first run downloads an official MongoDB test binary (large on Windows); internet access and permission to launch a local test process are required. They do not use Atlas or live customer data. End-to-end tests use ports 3100 and 27027; keep these free. Close other development servers for this checkout before running browser tests because Next.js uses a single development lock. Unit tests cover commission boundaries, safe money handling, permission maps, code uniqueness, input rejection, and normalization. Integration tests verify the transactional referral lifecycle and cross-owner access. Browser tests exercise public routes, responsive navigation, login restrictions, first-login password change, lead submission, and admin account creation.
+Integration and browser tests create isolated local MongoDB replica sets. The first run downloads an official MongoDB test binary (large on Windows); internet access and permission to launch a local test process are required. They do not use Atlas or live customer data. End-to-end tests use ports 3100 and 27027; keep these free. Browser tests use a separate .next-e2e build directory and do not reuse a live server or production database. Unit tests cover commission boundaries, safe money handling, permission maps, code uniqueness, input rejection, and normalization. Integration tests verify the transactional referral lifecycle and cross-owner access. Browser tests exercise public routes, responsive navigation, login restrictions, first-login password change, lead submission, and admin account creation.
 
 ## Operational notes
 
+### Public contact and influencer registration
+
+- `/contact` sends enquiries to `scalenexdigital@gmail.com`. The sender is `EMAIL_FROM`; Reply-To is the visitor's validated email. Configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, and `SMTP_PASSWORD` in `.env.local` and in the Vercel environment, then restart/redeploy. No success message is shown unless the SMTP server accepts the agency recipient.
+- `/register` allows influencers to choose a password and apply publicly. The server assigns `INFLUENCER`, `PENDING`, a random referral code, and the standard commission plan. Client-supplied role, status, attribution, or commission fields are rejected.
+- To approve an application, sign in as admin, open `/admin/influencers?status=PENDING`, open the account, select `ACTIVE`, enter the review reason, and save. The influencer can then sign in with their chosen password. Public registration cannot create administrators.
+- Contact and registration are throttled through MongoDB and include honeypot fields. Real inbox delivery still requires valid SMTP credentials; automated email tests use a mock transport and never send to the real inbox.
+
 - Published projects and customer reviews intentionally remain empty until approved material is supplied. No fake performance metrics or testimonials are included.
-- The public consultation CTA opens the provided WhatsApp contact. It does not pretend to book an appointment or save a contact submission.
+- The public consultation CTA opens /contact. The validated form sends plain-text email to scalenexdigital@gmail.com using SMTP, with the visitor as Reply-To. SMTP acceptance is required before success is shown. Enquiries are not stored in MongoDB; MongoDB stores only hashed throttling keys. Configure SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, and EMAIL_FROM before use.
 - The privacy and terms pages describe the implemented service; align them with your actual business arrangements and jurisdiction before launch.
 - Commission and lead history are not editable through the influencer interface or its server actions. Internal notes are excluded from default queries and partner DTOs.
 - Login and reset throttles are persisted in MongoDB, with TTL indexes. Failed database/rate-limit checks fail closed. Production deployments should additionally use platform-level request controls for volumetric abuse.
@@ -139,5 +146,6 @@ Integration and browser tests create isolated local MongoDB replica sets. The fi
 - Never use `output: 'export'` or an Edge-only runtime for this app: authentication and Mongoose require Node.js.
 
 Source is in this directory. Credentials, a live Atlas database, SMTP setup, and a Vercel account/domain are supplied by the operator; none are embedded in the project.
-#   S c a l e n e x D i g i t a l  
- 
+# ScalenexDigital
+
+

@@ -33,9 +33,9 @@ export default function Login() {
           <p>Sign in to your ScaleNex Digital workspace.</p>
           <AuthForm />
           <p className="auth-note">
-            Accounts are created by our admin team. Interested in joining?{" "}
-            <Link className="text-link" href="/influencer-program">
-              Explore the partner program ↗
+            New to our influencer program?{" "}
+            <Link className="text-link" href="/register">
+              Create your account ↗
             </Link>
           </p>
         </div>

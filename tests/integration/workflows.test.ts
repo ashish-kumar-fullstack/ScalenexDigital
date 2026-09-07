@@ -2,6 +2,8 @@ import { beforeAll, afterAll, describe, it, expect, vi } from "vitest";
 import { MongoMemoryReplSet } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import { hash } from "bcryptjs";
+import { compare } from "bcryptjs";
+import { registerInfluencer } from "../../src/lib/registration";
 import { db } from "../../src/lib/db";
 import {
   User,
@@ -117,6 +119,49 @@ afterAll(async () => {
   await repl?.stop();
 });
 describe("secure referral lifecycle against a real MongoDB replica set", () => {
+  it("public registration creates only pending influencers, with hashes and approval history", async () => {
+    const form = {
+      name: "Public Partner",
+      email: "public@example.test",
+      phone: "9876543210",
+      instagram: "@public",
+      city: "Delhi",
+      state: "Delhi",
+      password: "PublicPassword!123",
+      confirmPassword: "PublicPassword!123",
+      consent: true,
+      website: "",
+    };
+    expect(
+      (await registerInfluencer({ ...form, role: "ADMIN", status: "ACTIVE" }))
+        .ok,
+    ).toBe(false);
+    expect((await registerInfluencer(form)).ok).toBe(true);
+    const u = await User.findOne({ email: form.email }).select("+passwordHash");
+    expect(u.role).toBe("INFLUENCER");
+    expect(u.status).toBe("PENDING");
+    expect(u.mustChangePassword).toBe(false);
+    expect(await compare(form.password, u.passwordHash)).toBe(true);
+    expect(u.referralCode).toMatch(/^SNX-PUBLICPART-[A-F0-9]{10}$/);
+    expect(
+      await AuditLog.countDocuments({
+        action: "SELF_REGISTRATION",
+        entityId: u._id,
+      }),
+    ).toBe(1);
+    expect((await registerInfluencer(form)).ok).toBe(true);
+    expect(await User.countDocuments({ email: form.email })).toBe(1);
+    const actor: Actor = {
+      id: String(u._id),
+      name: u.name,
+      email: u.email,
+      role: "INFLUENCER",
+      referralCode: u.referralCode,
+      mustChangePassword: false,
+      sessionVersion: 0,
+    };
+    await expect(createLead(actor, fixture)).rejects.toThrow("Not authorized");
+  });
   it("admin creates influencers with unique indexed referral codes", async () => {
     const aid = await createInfluencer(admin, profile("Alice"));
     const bid = await createInfluencer(admin, profile("Bob"));

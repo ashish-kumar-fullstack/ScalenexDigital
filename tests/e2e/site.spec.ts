@@ -38,7 +38,9 @@ test("public pages render and consultation is usable", async ({ page }) => {
     page.getByRole("button", { name: "Send enquiry" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Send enquiry" }).click();
-  await expect(page.getByText("Enter your name.", {exact: true})).toBeVisible();
+  await expect(
+    page.getByText("Enter your name.", { exact: true }),
+  ).toBeVisible();
 });
 test("mobile navigation fits and routes work", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });

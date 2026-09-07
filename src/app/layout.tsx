@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     "Website development, SEO, digital marketing, AI automation and custom software. Build your next chapter with ScaleNex Digital.",
   openGraph: { siteName: "ScaleNex Digital", type: "website", locale: "en_IN" },
   robots: { index: true, follow: true },
+  verification: {
+    google: "0vutsQmaQWcck44wRyd-7unCTzOVAP2CrtUh6OvSixc",
+  },
 };
 export default async function RootLayout({
   children,

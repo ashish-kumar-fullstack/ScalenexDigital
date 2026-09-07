@@ -1,9 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-const { sendMail, createTransport, throttle } = vi.hoisted(() => ({ sendMail: vi.fn(), createTransport: vi.fn(), throttle: vi.fn() }));
+const { sendMail, createTransport, throttle } = vi.hoisted(() => ({
+  sendMail: vi.fn(),
+  createTransport: vi.fn(),
+  throttle: vi.fn(),
+}));
 vi.mock("nodemailer", () => ({ default: { createTransport } }));
 vi.mock("../../src/lib/security", () => ({ rateLimit: throttle }));
 import { deliverContact } from "../../src/lib/contact-mail";
-const form = { name: "Test Visitor", email: "visitor@example.test", phone: "", business: "", service: "SEO", message: "Please help with our website visibility.", consent: true, website: "" };
+const form = {
+  name: "Test Visitor",
+  email: "visitor@example.test",
+  phone: "",
+  business: "",
+  service: "SEO",
+  message: "Please help with our website visibility.",
+  consent: true,
+  website: "",
+};
 beforeEach(() => {
   vi.resetAllMocks();
   vi.stubEnv("SMTP_HOST", "smtp.example.test");
@@ -17,11 +30,23 @@ beforeEach(() => {
 describe("contact delivery", () => {
   it("sends only to the agency with the visitor as reply-to", async () => {
     expect((await deliverContact(form)).ok).toBe(true);
-    expect(sendMail).toHaveBeenCalledWith(expect.objectContaining({ to: "scalenexdigital@gmail.com", replyTo: "visitor@example.test", from: "ScaleNex Digital <sender@example.test>" }));
+    expect(sendMail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "scalenexdigital@gmail.com",
+        replyTo: "visitor@example.test",
+        from: "ScaleNex Digital <sender@example.test>",
+      }),
+    );
     expect(throttle).toHaveBeenCalledTimes(2);
   });
   it("rejects recipient injection, invalid inputs, and missing consent", async () => {
-    for (const input of [{ ...form, to: "attacker@example.test" }, { ...form, consent: false }, { ...form, website: "spam" }, { ...form, email: "invalid" }]) expect((await deliverContact(input)).ok).toBe(false);
+    for (const input of [
+      { ...form, to: "attacker@example.test" },
+      { ...form, consent: false },
+      { ...form, website: "spam" },
+      { ...form, email: "invalid" },
+    ])
+      expect((await deliverContact(input)).ok).toBe(false);
     expect(sendMail).not.toHaveBeenCalled();
   });
   it("does not claim success when SMTP is missing", async () => {

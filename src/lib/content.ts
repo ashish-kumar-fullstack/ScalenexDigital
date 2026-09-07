@@ -127,7 +127,7 @@ export const faqs = [
   ],
   [
     "How do we get started?",
-    "Book a free consultation or message us on WhatsApp. We’ll discuss your goals, current challenges, and budget, then propose a clear scope and next steps.",
+    "Send an enquiry through our contact form. We’ll discuss your goals, current challenges, and budget, then propose a clear scope and next steps.",
   ],
   [
     "Do you work with small and growing businesses?",

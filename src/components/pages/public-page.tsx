@@ -210,7 +210,9 @@ export default async function Page({
           <div className="consult-card">
             <Eyebrow>LET’S START A CONVERSATION</Eyebrow>
             <h2>Tell us what’s next.</h2>
-            <p>Share a few details and send your enquiry directly to our team.</p>
+            <p>
+              Share a few details and send your enquiry directly to our team.
+            </p>
             <ContactForm />
           </div>
         </section>
@@ -234,11 +236,11 @@ export default async function Page({
               {[
                 [
                   "Connect",
-                  "Tell us about yourself and your network. Our team reviews partnership enquiries.",
+                  "Complete the public registration form with your contact details and a private password.",
                 ],
                 [
                   "Get approved",
-                  "Receive your private account and unique referral code from our admin team.",
+                  "Your referral code is generated automatically. Our team reviews and activates your account.",
                 ],
                 [
                   "Refer with consent",
@@ -275,9 +277,9 @@ export default async function Page({
                   entitlement to payment.
                 </p>
                 <Button asChild>
-                  <a href="https://wa.me/916398520345?text=Hi%20ScaleNex%20Digital%2C%20I%27m%20interested%20in%20your%20influencer%20program.">
-                    Discuss a partnership <ArrowUpRight size={18} />
-                  </a>
+                  <Link href="/register">
+                    Register as an influencer <ArrowUpRight size={18} />
+                  </Link>
                 </Button>
               </div>
               <div className="program-benefits">
@@ -286,7 +288,7 @@ export default async function Page({
                   "Automatic referral attribution",
                   "Lead updates and visible admin notes",
                   "Commission and payment tracking",
-                  "No public registration — approval required",
+                  "Public registration with admin approval",
                 ].map((t) => (
                   <span key={t}>
                     <Check size={20} />
