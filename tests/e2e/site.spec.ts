@@ -35,8 +35,10 @@ test("public pages render and consultation is usable", async ({ page }) => {
     .click();
   await expect(page).toHaveURL(/contact/);
   await expect(
-    page.getByRole("link", { name: "Book on WhatsApp" }),
-  ).toHaveAttribute("href", /wa.me\/916398520345/);
+    page.getByRole("button", { name: "Send enquiry" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Send enquiry" }).click();
+  await expect(page.getByText("Enter your name.", {exact: true})).toBeVisible();
 });
 test("mobile navigation fits and routes work", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });

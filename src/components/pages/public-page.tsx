@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ContactForm } from "@/components/contact-form";
 import { notFound } from "next/navigation";
 import {
   ArrowUpRight,
@@ -207,32 +208,10 @@ export default async function Page({
             </a>
           </div>
           <div className="consult-card">
-            <Eyebrow>NO-PRESSURE FIRST STEP</Eyebrow>
-            <h2>
-              A fresh perspective
-              <br />
-              on what’s next.
-            </h2>
-            <p>
-              Your free consultation is a conversation about your goals and the
-              practical next steps that could help you reach them.
-            </p>
-            <div className="check-list">
-              <span>
-                <Check size={18} /> Discuss your business and priorities
-              </span>
-              <span>
-                <Check size={18} /> Explore the services that fit
-              </span>
-              <span>
-                <Check size={18} /> Understand scope and next steps
-              </span>
-            </div>
-            <Button asChild>
-              <a href="https://wa.me/916398520345?text=Hi%20ScaleNex%20Digital%2C%20I%27d%20like%20to%20book%20a%20free%20consultation.">
-                Book on WhatsApp <ArrowUpRight size={18} />
-              </a>
-            </Button>
+            <Eyebrow>LET’S START A CONVERSATION</Eyebrow>
+            <h2>Tell us what’s next.</h2>
+            <p>Share a few details and send your enquiry directly to our team.</p>
+            <ContactForm />
           </div>
         </section>
       ) : slug === "influencer-program" ? (
