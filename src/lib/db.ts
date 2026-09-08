@@ -5,6 +5,7 @@ export async function db() {
   connection ??= mongoose
     .connect(process.env.MONGODB_URI, {
       dbName: process.env.MONGODB_DB_NAME || "scalenex",
+      retryWrites: false,
       serverSelectionTimeoutMS: 5000,
     })
     .catch((e) => {

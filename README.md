@@ -73,11 +73,11 @@ Open `/login`, sign in with the initial credentials, and change the temporary pa
 ## Deploy to Vercel
 
 1. Create a private GitHub repository and push this project, including `package-lock.json`. Do not commit `.env.local`, `node_modules`, or `.next`.
-2. In Vercel choose **Add New → Project**, import the repository, and select the **Next.js** framework preset. Keep this repository root as the Root Directory. Use Node.js 22.x or a compatible supported LTS, `npm ci` as the install command, and `npm run build` as the build command. Leave Output Directory at the framework default.
-3. Add the production environment variables from `.env.example`. `MONGODB_URI`, `MONGODB_DB_NAME`, and `AUTH_SECRET` must be real production values. Set **both** `NEXTAUTH_URL` and `NEXT_PUBLIC_APP_URL` to the exact production origin, such as `https://YOUR_PROJECT.vercel.app`, without a trailing slash. Set SMTP sender/provider values for password reset. Initial admin credentials are only needed on the machine where you run the seed, not in Vercel's runtime.
+2. In Vercel choose **Add New → Project**, import the repository, and select the **Next.js** framework preset. Keep this repository root as the Root Directory. Use Node.js 22.x or a compatible supported LTS, `npm ci` as the install command, and `npm run vercel-build` as the build command. Leave Output Directory at the framework default.
+3. Add the production environment variables from `.env.example`. `MONGODB_URI`, `MONGODB_DB_NAME`, and `AUTH_SECRET` must be real production values. Set **both** `NEXTAUTH_URL` and `NEXT_PUBLIC_APP_URL` to the exact production origin, such as `https://YOUR_PROJECT.vercel.app`, without a trailing slash. Set SMTP sender/provider values for password reset. Set INITIAL_ADMIN_EMAIL and INITIAL_ADMIN_PASSWORD in the Vercel Production environment for initialization.
 4. Set `MONGOMS_DISABLE_POSTINSTALL=1` in Vercel so installation does not download the database binary used only by local automated tests.
 5. Configure Atlas network access for your deployment. Deploy. If the final domain differs from the configured origin, update both URL variables and redeploy. Public metadata and sitemap use the configured public origin.
-6. Point your local `.env.local` at the intended production database temporarily and run `npm.cmd run seed` once from your trusted machine. Keep production credentials private; do not run seed as part of every build. Restore your local development database settings afterward.
+6. Production deployment automatically initializes the database and missing admin after the build. To initialize manually, point `.env.local` at the intended database and run `npm.cmd run seed`. Existing credentials are preserved.
 7. Visit the deployed `/login`, change the admin's temporary password, sign in again, and create an influencer account. Verify lead creation, ownership, notifications, status history, and a commission record with a controlled test referral. Remove test data through a deliberate database maintenance process before accepting live leads.
 8. To use a custom domain, add it under Vercel Project Settings → Domains, complete the requested DNS configuration, update both URL variables, and redeploy.
 
@@ -148,4 +148,13 @@ Integration and browser tests create isolated local MongoDB replica sets. The fi
 Source is in this directory. Credentials, a live Atlas database, SMTP setup, and a Vercel account/domain are supplied by the operator; none are embedded in the project.
 # ScalenexDigital
 
+
+
+### Production database and admin initialization
+
+Vercel uses `vercel.json` to run `npm run vercel-build`. After a successful production build, it initializes collections, indexes, the initial admin, and default commission rules. Preview deployments do not seed. Initialization failure fails deployment instead of silently publishing without an admin. Existing admin credentials and account status are preserved.
+
+Set `MONGODB_URI`, `MONGODB_DB_NAME=scalenex`, `INITIAL_ADMIN_EMAIL`, `INITIAL_ADMIN_PASSWORD` (12+ characters), and `AUTH_SECRET` (32+ characters) in Vercel's **Production** environment. Set `NEXTAUTH_URL` and `NEXT_PUBLIC_APP_URL` to your actual HTTPS website origin, not localhost. Atlas must permit the deployment's database connection. Redeploy after saving these settings; ensure a dashboard build-command override does not bypass `npm run vercel-build`.
+
+To initialize manually from your local environment, run `npm run seed`. It loads the same `.env*` files as Next.js and also accepts environment variables supplied by the hosting provider. Sign in at `/login` with the configured initial admin credentials, then change the initial password. Running seed again never resets that password or reactivates a suspended account.
 
