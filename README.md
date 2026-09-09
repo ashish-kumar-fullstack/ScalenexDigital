@@ -68,7 +68,7 @@ npm.cmd run seed
 
 This creates collection indexes and the initial admin, hashes the password, and adds the standard commission tiers. Re-running it does not change an existing admin's password or create duplicate users. An email that already belongs to an influencer is rejected. The temporary password must have at least 12 characters and at most 72 UTF-8 bytes. The script never prints it.
 
-Open `/login`, sign in with the initial credentials, and change the temporary password. Password changes revoke existing sessions; sign in again. Use `/admin/influencers/new` to create partner accounts. Share temporary credentials through a private channel. Influencers can also register at /register. These accounts start PENDING; activate them from the admin Influencers screen after review.
+Open `/login`, sign in with the initial credentials, and change the temporary password. Password changes revoke existing sessions; sign in again. Use `/admin/influencers/new` to create partner accounts. Share temporary credentials through a private channel. Influencers can also register at `/register`; public accounts start ACTIVE and can sign in immediately.
 
 ## Deploy to Vercel
 
@@ -131,8 +131,7 @@ Integration and browser tests create isolated local MongoDB replica sets. The fi
 ### Public contact and influencer registration
 
 - `/contact` sends enquiries to `scalenexdigital@gmail.com`. The sender is `EMAIL_FROM`; Reply-To is the visitor's validated email. Configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, and `SMTP_PASSWORD` in `.env.local` and in the Vercel environment, then restart/redeploy. No success message is shown unless the SMTP server accepts the agency recipient.
-- `/register` allows influencers to choose a password and apply publicly. The server assigns `INFLUENCER`, `PENDING`, a random referral code, and the standard commission plan. Client-supplied role, status, attribution, or commission fields are rejected.
-- To approve an application, sign in as admin, open `/admin/influencers?status=PENDING`, open the account, select `ACTIVE`, enter the review reason, and save. The influencer can then sign in with their chosen password. Public registration cannot create administrators.
+- `/register` allows influencers to choose a password and register publicly. The server assigns `INFLUENCER`, `ACTIVE`, a random referral code, and the standard commission plan. The influencer can sign in immediately. Client-supplied role, status, attribution, or commission fields are rejected, so public registration cannot create administrators.
 - Contact and registration are throttled through MongoDB and include honeypot fields. Real inbox delivery still requires valid SMTP credentials; automated email tests use a mock transport and never send to the real inbox.
 
 - Published projects and customer reviews intentionally remain empty until approved material is supplied. No fake performance metrics or testimonials are included.
@@ -146,9 +145,8 @@ Integration and browser tests create isolated local MongoDB replica sets. The fi
 - Never use `output: 'export'` or an Edge-only runtime for this app: authentication and Mongoose require Node.js.
 
 Source is in this directory. Credentials, a live Atlas database, SMTP setup, and a Vercel account/domain are supplied by the operator; none are embedded in the project.
+
 # ScalenexDigital
-
-
 
 ### Production database and admin initialization
 
@@ -157,4 +155,3 @@ Vercel uses `vercel.json` to run `npm run vercel-build`. After a successful prod
 Set `MONGODB_URI`, `MONGODB_DB_NAME=scalenex`, `INITIAL_ADMIN_EMAIL`, `INITIAL_ADMIN_PASSWORD` (12+ characters), and `AUTH_SECRET` (32+ characters) in Vercel's **Production** environment. Set `NEXTAUTH_URL` and `NEXT_PUBLIC_APP_URL` to your actual HTTPS website origin, not localhost. Atlas must permit the deployment's database connection. Redeploy after saving these settings; ensure a dashboard build-command override does not bypass `npm run vercel-build`.
 
 To initialize manually from your local environment, run `npm run seed`. It loads the same `.env*` files as Next.js and also accepts environment variables supplied by the hosting provider. Sign in at `/login` with the configured initial admin credentials, then change the initial password. Running seed again never resets that password or reactivates a suspended account.
-

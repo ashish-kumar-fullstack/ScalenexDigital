@@ -29,7 +29,7 @@ test("contact form validates and reports unavailable email honestly", async ({
   ).toBe(true);
 });
 
-test("public influencer registers, waits for approval, and admin activates access", async ({
+test("public influencer registers with active access and signs in", async ({
   page,
 }) => {
   await page.goto("/register");
@@ -51,32 +51,9 @@ test("public influencer registers, waits for approval, and admin activates acces
     .check();
   await page.getByRole("button", { name: "Register as an influencer" }).click();
   await expect(page.getByRole("status")).toContainText(
-    "registration has been received",
+    "account is active and ready",
   );
   await page.getByRole("link", { name: "Go to sign in" }).click();
-  await page
-    .getByLabel("Email address", { exact: true })
-    .fill("self.browser@example.test");
-  await page.getByLabel("Password", { exact: true }).fill("BrowserTest!1234");
-  await page.getByRole("button", { name: "Sign in to your workspace" }).click();
-  await expect(page.getByRole("status")).toContainText("Unable to sign in");
-  await page
-    .getByLabel("Email address", { exact: true })
-    .fill("admin@example.test");
-  await page.getByRole("button", { name: "Sign in to your workspace" }).click();
-  await expect(page).toHaveURL(/admin\/dashboard/);
-  await page.goto("/admin/influencers");
-  await page
-    .getByRole("link", { name: "Self Registered Partner", exact: true })
-    .click();
-  await page.getByLabel("Account status").selectOption("ACTIVE");
-  await page
-    .getByLabel("Reason for changes")
-    .fill("Registration reviewed and approved");
-  await page.getByRole("button", { name: "Save account changes" }).click();
-  await expect(page.getByRole("status")).toContainText("Changes saved");
-  await page.getByRole("button", { name: "Sign out" }).click();
-  await expect(page).toHaveURL(/login/);
   await page
     .getByLabel("Email address", { exact: true })
     .fill("self.browser@example.test");

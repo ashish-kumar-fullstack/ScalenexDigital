@@ -239,8 +239,8 @@ export default async function Page({
                   "Complete the public registration form with your contact details and a private password.",
                 ],
                 [
-                  "Get approved",
-                  "Your referral code is generated automatically. Our team reviews and activates your account.",
+                  "Get your referral code",
+                  "Your account is activated and your unique referral code is generated automatically.",
                 ],
                 [
                   "Refer with consent",
@@ -288,7 +288,7 @@ export default async function Page({
                   "Automatic referral attribution",
                   "Lead updates and visible admin notes",
                   "Commission and payment tracking",
-                  "Public registration with admin approval",
+                  "Instant account activation",
                 ].map((t) => (
                   <span key={t}>
                     <Check size={20} />
@@ -296,7 +296,7 @@ export default async function Page({
                   </span>
                 ))}
                 <Link className="text-link" href="/login">
-                  Already approved? Partner login <ArrowRightIcon />
+                  Already registered? Partner login <ArrowRightIcon />
                 </Link>
               </div>
             </div>
@@ -365,11 +365,11 @@ export default async function Page({
               </p>
               <h2>Partner accounts</h2>
               <p>
-                Only approved partners receive accounts. Keep credentials
-                private, provide accurate information, and submit business
-                contact details only with customer consent. Do not attempt to
-                access another partner’s information or misrepresent referral
-                ownership.
+                Registered partners receive individual accounts. Keep
+                credentials private, provide accurate information, and submit
+                business contact details only with customer consent. Do not
+                attempt to access another partner’s information or misrepresent
+                referral ownership.
               </p>
               <h2>Referrals and commission</h2>
               <p>

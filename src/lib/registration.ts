@@ -16,7 +16,7 @@ export async function registerInfluencer(input: unknown) {
   const success = {
     ok: true,
     message:
-      "Your registration has been received. New accounts need admin approval before sign-in. If you already have an account, use Sign in or Forgot password.",
+      "Your account is active and ready. You can sign in now with the password you created. If you already have an account, use Sign in or Forgot password.",
   };
   try {
     await rateLimit("registration-global", 50, 3600);
@@ -35,7 +35,7 @@ export async function registerInfluencer(input: unknown) {
             state: v.state,
             passwordHash,
             role: "INFLUENCER",
-            status: "PENDING",
+            status: "ACTIVE",
             mustChangePassword: false,
             referralCode: referralCode(v.name),
             commissionPlan: "DEFAULT",
@@ -48,8 +48,9 @@ export async function registerInfluencer(input: unknown) {
           {
             userId: user._id,
             previousStatus: "",
-            newStatus: "PENDING",
-            reason: "Public registration; terms and privacy accepted",
+            newStatus: "ACTIVE",
+            reason:
+              "Public registration activated automatically; terms and privacy accepted",
             changedBy: user._id,
           },
         ],
@@ -66,10 +67,10 @@ export async function registerInfluencer(input: unknown) {
             previousData: null,
             newData: {
               role: "INFLUENCER",
-              status: "PENDING",
+              status: "ACTIVE",
               termsAcceptedAt: new Date(),
             },
-            reason: "Public registration awaiting admin approval",
+            reason: "Public registration activated automatically",
             ip: "unavailable",
             userAgent: "",
           },
@@ -84,7 +85,7 @@ export async function registerInfluencer(input: unknown) {
           admins.map((admin) => ({
             userId: admin._id,
             title: "New influencer registration",
-            message: `${v.name} has registered and is awaiting approval. Review their account in Influencers.`,
+            message: `${v.name} has registered and their account is active. View their account in Influencers.`,
             type: "ACCOUNT",
             relatedId: user._id,
           })),

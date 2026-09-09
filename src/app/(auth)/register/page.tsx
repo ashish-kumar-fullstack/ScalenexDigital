@@ -3,7 +3,7 @@ import { RegisterForm } from "@/components/register-form";
 export const metadata = {
   title: "Influencer registration",
   description:
-    "Join the ScaleNex Digital referral program. Register your influencer account for review.",
+    "Join the ScaleNex Digital referral program and create your influencer account.",
 };
 export default function Page() {
   return (
@@ -18,8 +18,8 @@ export default function Page() {
             <span>New possibilities.</span>
           </h1>
           <p>
-            Register to become a referral partner. Once your account is
-            approved, you can submit leads and track your commissions.
+            Register to become a referral partner. Your account becomes active
+            immediately so you can submit leads and track your commissions.
           </p>
         </div>
         <small>Build. Rank. Grow. Together.</small>
@@ -28,10 +28,7 @@ export default function Page() {
         <div style={{ maxWidth: 550 }}>
           <span className="eyebrow">BECOME A REFERRAL PARTNER</span>
           <h1 style={{ fontSize: 34 }}>Create your account.</h1>
-          <p>
-            New registrations are reviewed by our admin team before sign-in is
-            enabled.
-          </p>
+          <p>Create your account and sign in immediately after registration.</p>
           <RegisterForm />
         </div>
       </section>
