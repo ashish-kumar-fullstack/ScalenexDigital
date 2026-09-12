@@ -1,6 +1,6 @@
 import "server-only";
-import mongoose from "mongoose";
 import { hash } from "bcryptjs";
+import { dbTransaction } from "./db";
 import { registerSchema } from "./register-schema";
 import { User, UserStatusHistory, AuditLog, Notification } from "./models";
 import { rateLimit, referralCode } from "./security";
@@ -23,7 +23,7 @@ export async function registerInfluencer(input: unknown) {
     await rateLimit("registration:" + v.email, 3, 3600);
     if (await User.exists({ email: v.email })) return success;
     const passwordHash = await hash(v.password, 12);
-    await mongoose.connection.transaction(async (session) => {
+    await dbTransaction(async (session) => {
       const [user] = await User.create(
         [
           {

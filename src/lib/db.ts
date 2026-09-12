@@ -1,5 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { type ClientSession } from "mongoose";
 let connection: Promise<typeof mongoose> | undefined;
+let transactionSupport: Promise<boolean> | undefined;
 export async function db() {
   if (!process.env.MONGODB_URI) throw new Error("Database is not configured");
   connection ??= mongoose
@@ -13,4 +14,24 @@ export async function db() {
       throw e;
     });
   return connection;
+}
+
+async function supportsTransactions() {
+  transactionSupport ??= (async () => {
+    await db();
+    const hello = await mongoose.connection.db!.admin().command({ hello: 1 });
+    return Boolean(hello.setName || hello.msg === "isdbgrid");
+  })();
+  return transactionSupport;
+}
+
+export type DatabaseSession = ClientSession | null;
+
+export async function dbTransaction<T>(
+  operation: (session: DatabaseSession) => Promise<T>,
+) {
+  await db();
+  if (await supportsTransactions())
+    return mongoose.connection.transaction(operation);
+  return operation(null);
 }

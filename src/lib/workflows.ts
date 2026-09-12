@@ -1,10 +1,10 @@
 import "server-only";
-import mongoose, { type ClientSession } from "mongoose";
+import mongoose from "mongoose";
 import { hash } from "bcryptjs";
 import { headers } from "next/headers";
 import { isIP } from "node:net";
 import { z } from "zod";
-import { db } from "./db";
+import { db, dbTransaction, type DatabaseSession } from "./db";
 import {
   User,
   Lead,
@@ -70,7 +70,7 @@ export async function audit(
   previousData: unknown,
   newData: unknown,
   reason: string,
-  s: ClientSession,
+  s: DatabaseSession,
 ) {
   await AuditLog.create(
     [
@@ -95,15 +95,14 @@ async function notify(
   message: string,
   type: string,
   relatedId: unknown,
-  s: ClientSession,
+  s: DatabaseSession,
 ) {
   await Notification.create([{ userId, title, message, type, relatedId }], {
     session: s,
   });
 }
-async function transaction<T>(fn: (s: ClientSession) => Promise<T>) {
-  await db();
-  return mongoose.connection.transaction(fn);
+async function transaction<T>(fn: (s: DatabaseSession) => Promise<T>) {
+  return dbTransaction(fn);
 }
 export async function createInfluencer(a: Actor, input: unknown) {
   await authorize(a, "users:manage");
@@ -125,7 +124,7 @@ export async function createInfluencer(a: Actor, input: unknown) {
           mustChangePassword: true,
         },
       ],
-      { session: s },
+      s ? { session: s } : {},
     );
     await audit(
       a,
@@ -304,7 +303,7 @@ export async function updateLead(a: Actor, id: string, input: unknown) {
     );
   });
 }
-export async function commissionTiers(s?: ClientSession): Promise<Tier[]> {
+export async function commissionTiers(s?: DatabaseSession): Promise<Tier[]> {
   await db();
   const now = new Date();
   const q = CommissionRule.find({
@@ -446,7 +445,7 @@ export async function saveRules(a: Actor, input: unknown) {
     await CommissionRule.updateMany(
       { active: true },
       { $set: { active: false, effectiveTo: new Date(), updatedBy: a.id } },
-      { session: s },
+      s ? { session: s } : {},
     );
     await CommissionRule.insertMany(
       tiers.map((t) => ({
