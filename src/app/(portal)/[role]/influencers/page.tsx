@@ -36,6 +36,7 @@ export default async function Page({
                   <th>Location</th>
                   <th>Status</th>
                   <th>Joined</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -51,6 +52,14 @@ export default async function Page({
                       <Badge value={u.status} />
                     </td>
                     <td>{new Date(u.createdAt).toLocaleDateString("en-IN")}</td>
+                    <td>
+                      <Link
+                        className="text-link"
+                        href={`/admin/influencers/${u._id}#status-update`}
+                      >
+                        Update status
+                      </Link>
+                    </td>
                   </tr>
                 ))}
               </tbody>

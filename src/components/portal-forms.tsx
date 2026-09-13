@@ -214,18 +214,26 @@ export function UserForm({
           )}
         </div>
       ))}
-      <div className="field">
-        <label htmlFor="status">Account status</label>
-        <select
-          id="status"
+      {id ? (
+        <input
+          type="hidden"
           name="status"
-          defaultValue={initial?.status || "ACTIVE"}
-        >
-          {userStatuses.map((s) => (
-            <option key={s}>{s}</option>
-          ))}
-        </select>
-      </div>
+          value={initial?.status || "ACTIVE"}
+        />
+      ) : (
+        <div className="field">
+          <label htmlFor="status">Account status</label>
+          <select
+            id="status"
+            name="status"
+            defaultValue={initial?.status || "ACTIVE"}
+          >
+            {userStatuses.map((s) => (
+              <option key={s}>{s}</option>
+            ))}
+          </select>
+        </div>
+      )}
       <div className="field">
         <label htmlFor="commissionPlan">Commission plan</label>
         <select
@@ -281,6 +289,59 @@ export function UserForm({
           : id
             ? "Save account changes"
             : "Create influencer account"}
+      </Button>
+    </form>
+  );
+}
+
+export function UserStatusForm({ id, status }: { id: string; status: string }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<Result | null>(null);
+  return (
+    <form
+      id="status-update"
+      className="form-panel form-grid"
+      onSubmit={async (event) => {
+        event.preventDefault();
+        setBusy(true);
+        const values = Object.fromEntries(new FormData(event.currentTarget));
+        const response = await mutate("updateUserStatus", id, values);
+        setResult(response);
+        setBusy(false);
+        if (response.ok) router.refresh();
+      }}
+    >
+      <div className="span-2">
+        <h2 style={{ fontSize: 22 }}>Update account status</h2>
+        <p>This change immediately controls the influencer’s login access.</p>
+      </div>
+      <div className="field">
+        <label htmlFor="account-status">Account status</label>
+        <select id="account-status" name="status" defaultValue={status}>
+          {userStatuses.map((value) => (
+            <option key={value} value={value}>
+              {label(value)}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="field">
+        <label htmlFor="status-reason">Reason for status change</label>
+        <input
+          id="status-reason"
+          name="reason"
+          required
+          minLength={1}
+          maxLength={500}
+          placeholder="For example: Account reviewed and approved"
+        />
+      </div>
+      <div className="span-2">
+        <Status value={result} />
+      </div>
+      <Button type="submit" disabled={busy}>
+        {busy ? "Updating…" : "Update status"}
       </Button>
     </form>
   );

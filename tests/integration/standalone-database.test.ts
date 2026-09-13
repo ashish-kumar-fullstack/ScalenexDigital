@@ -10,7 +10,7 @@ import {
   User,
   UserStatusHistory,
 } from "../../src/lib/models";
-import { editInfluencer } from "../../src/lib/workflows";
+import { updateInfluencerStatus } from "../../src/lib/workflows";
 
 vi.mock("next/headers", () => ({
   headers: async () => new Headers({ "user-agent": "standalone-test" }),
@@ -73,18 +73,9 @@ afterAll(async () => {
 });
 
 it("updates influencer status when MongoDB transactions are unavailable", async () => {
-  await editInfluencer(admin, influencerId, {
-    name: "Partner",
-    email: "partner@standalone.test",
-    phone: "9876543210",
-    instagram: "@partner",
-    city: "Delhi",
-    state: "Delhi",
+  await updateInfluencerStatus(admin, influencerId, {
     status: "SUSPENDED",
-    commissionPlan: "DEFAULT",
-    internalNotes: "Reviewed",
     reason: "Status workflow test",
-    regenerate: false,
   });
 
   const updated = await User.findById(influencerId);
@@ -98,6 +89,9 @@ it("updates influencer status when MongoDB transactions are unavailable", async 
     }),
   ).toBeTruthy();
   expect(
-    await AuditLog.exists({ entityId: influencerId, action: "USER_UPDATED" }),
+    await AuditLog.exists({
+      entityId: influencerId,
+      action: "USER_STATUS_UPDATED",
+    }),
   ).toBeTruthy();
 });

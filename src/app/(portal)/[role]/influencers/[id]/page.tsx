@@ -3,7 +3,7 @@ import { requireActor } from "@/lib/access";
 import { User, UserStatusHistory } from "@/lib/models";
 import { validId } from "@/lib/workflows";
 import { Heading } from "@/components/portal-server";
-import { UserForm } from "@/components/portal-forms";
+import { UserForm, UserStatusForm } from "@/components/portal-forms";
 import { label } from "@/lib/utils";
 export default async function Page({
   params,
@@ -36,6 +36,7 @@ export default async function Page({
         description={`Referral code: ${u.referralCode}`}
         action={{ href: "/admin/influencers", text: "All influencers" }}
       />
+      <UserStatusForm id={id} status={u.status} />
       <UserForm
         id={id}
         initial={{

@@ -10,6 +10,7 @@ import { requireActor } from "@/lib/access";
 import {
   createInfluencer,
   editInfluencer,
+  updateInfluencerStatus,
   createLead,
   updateLead,
   savePayment,
@@ -35,6 +36,9 @@ export async function mutate(
         break;
       case "editUser":
         await editInfluencer(a, id, input);
+        break;
+      case "updateUserStatus":
+        await updateInfluencerStatus(a, id, input);
         break;
       case "createLead":
         await rateLimit("lead:" + a.id, 20, 3600);

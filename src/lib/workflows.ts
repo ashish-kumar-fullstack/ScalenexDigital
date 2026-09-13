@@ -16,7 +16,7 @@ import {
   CommissionRule,
 } from "./models";
 import { type Actor, ownerScope } from "./access";
-import { allowed, type Role } from "./constants";
+import { allowed, userStatuses, type Role } from "./constants";
 import {
   userSchema,
   leadSchema,
@@ -202,6 +202,60 @@ export async function editInfluencer(a: Actor, id: string, input: unknown) {
       { status: old },
       { status: u.status, referralCode: u.referralCode },
       reason,
+      s,
+    );
+  });
+}
+
+export async function updateInfluencerStatus(
+  a: Actor,
+  id: string,
+  input: unknown,
+) {
+  await authorize(a, "users:manage");
+  validId(id);
+  const v = z
+    .object({
+      status: z.enum(userStatuses),
+      reason: z.string().trim().min(1).max(500),
+    })
+    .parse(input);
+  return transaction(async (s) => {
+    const u = await User.findOne({ _id: id, role: "INFLUENCER" }).session(s);
+    if (!u) throw new Error("Record not found");
+    const previousStatus = u.status;
+    if (previousStatus === v.status) return;
+    u.status = v.status;
+    u.sessionVersion++;
+    await u.save({ session: s });
+    await UserStatusHistory.create(
+      [
+        {
+          userId: id,
+          previousStatus,
+          newStatus: v.status,
+          reason: v.reason,
+          changedBy: a.id,
+        },
+      ],
+      { session: s },
+    );
+    await notify(
+      id,
+      "Account status updated",
+      `Your account is now ${v.status.toLowerCase()}.`,
+      "ACCOUNT",
+      u._id,
+      s,
+    );
+    await audit(
+      a,
+      "USER_STATUS_UPDATED",
+      "User",
+      u._id,
+      { status: previousStatus },
+      { status: v.status },
+      v.reason,
       s,
     );
   });

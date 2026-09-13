@@ -139,3 +139,27 @@ test("admin creates an influencer account", async ({ page }) => {
   await expect(page.locator("h1")).toHaveText("Created Partner");
   await expect(page.getByText(/Referral code: SNX-CREATEDPAR-/)).toBeVisible();
 });
+
+test("admin updates an influencer status from the explicit list action", async ({
+  page,
+}) => {
+  await login(page, "admin@example.test");
+  await page.goto("/admin/influencers");
+  const partnerRow = page.getByRole("row").filter({ hasText: "Test Partner" });
+  await partnerRow.getByRole("link", { name: "Update status" }).click();
+  await expect(page.locator("#status-update")).toBeVisible();
+  await page
+    .getByLabel("Account status", { exact: true })
+    .selectOption("INACTIVE");
+  await page
+    .getByLabel("Reason for status change")
+    .fill("Status updated from admin portal");
+  await page.getByRole("button", { name: "Update status" }).click();
+  await expect(page.getByRole("status")).toContainText(
+    "Changes saved successfully",
+  );
+  await page.goto("/admin/influencers");
+  await expect(
+    page.getByRole("row").filter({ hasText: "Test Partner" }),
+  ).toContainText("Inactive");
+});
